@@ -1,231 +1,134 @@
-# Burnout Prediction System
+# Burnout Early Alert Monitor (BEAM)
 
-A complete AI-powered system for predicting employee burnout risk using machine learning, featuring a REST API and modern web interface with confidence scoring.
+AI-powered employee burnout risk prediction with 91% confidence intervals.
 
-## 🎯 Features
+## 🚀 Quick Start
 
-- **Machine Learning Models**: XGBoost with quantile regression for 91% confidence intervals
-- **REST API**: FastAPI with single/batch prediction endpoints
-- **Modern Web Interface**: Responsive design with mathematical confidence tooltips
-- **Cross-Platform**: Supports Windows, macOS, and Linux
-- **Confidence Scoring**: Statistical uncertainty quantification
+### Prerequisites
+- Python 3.8+
+- Git (optional)
 
-## 🚀 Quick Setup Guide
-
-### 📋 Prerequisites
-
-**All Systems:**
-- Python 3.8+ installed
-- Git (optional, for cloning)
+### Setup & Run
 
 **Windows:**
-- Command Prompt or PowerShell with Administrator privileges
-- Ensure Python is added to PATH during installation
-
-**Unix/Linux/macOS:**
-- Terminal access
-- Basic command line familiarity
-
----
-
-## 🖥️ Platform-Specific Installation
-
-### 🪟 **Windows Setup**
-
-#### **Option 1: Automated Setup (Recommended)**
 ```cmd
-# Navigate to project directory
-cd C:\path\to\burnout_prediction
-
-# Run automated installer
+git clone https://github.com/jW028/BEAM.git
+cd BEAM
 windows_setup\install_dependencies.bat
-```
-
-#### **Option 2: Manual Setup**
-```cmd
-# 1. Create virtual environment
-python -m venv venv
-
-# 2. Activate virtual environment
-venv\Scripts\activate.bat
-
-# 3. Upgrade pip
-python -m pip install --upgrade pip
-
-# 4. Install dependencies
-pip install -r requirements.txt
-
-# 5. Train the model
-python burnout_prediction_model.py
-
-# 6. Start the system
 windows_setup\start_full_system.bat
 ```
 
-#### **Windows Troubleshooting**
-
-**"System cannot find the path specified":**
-```cmd
-# Try with py launcher
-py -m venv venv
-
-# Or use full paths
-python -m venv "C:\full\path\to\your\project\venv"
+**Unix/Linux/macOS:**
+```bash
+git clone https://github.com/jW028/BEAM.git
+cd BEAM
+chmod +x unix_setup/*.sh
+./unix_setup/install_dependencies.sh
+./unix_setup/start_full_system.sh
 ```
+
+### Access the System
+- 🌐 **Web Interface**: http://localhost:3000
+- 🔧 **API**: http://localhost:8000
+- 📚 **API Docs**: http://localhost:8000/docs
+
+## ✨ What You Get
+
+- **Web Interface**: Upload CSV or use sliders for single predictions
+- **REST API**: Integrate with your existing systems
+- **Confidence Scores**: Know how reliable each prediction is
+- **Batch Processing**: Analyze multiple employees at once
+
+## � How It Works
+
+Input 6 simple parameters:
+- Job level (0-5)
+- Resource allocation (0-10)
+- Mental fatigue (0-10)  
+- Gender (Male/Female)
+- Company type (Product/Service)
+- Work from home (Yes/No)
+
+Get back:
+- **Burnout risk** (0-100%)
+- **Risk category** (Low/Medium/High)
+- **Confidence score** (how certain the AI is)
+
+## 🛠️ Manual Setup (If Automated Scripts Fail)
+
+**Windows:**
+```cmd
+python -m venv venv
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+python burnout_prediction_model.py
+```
+
+**Unix/Linux/macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python burnout_prediction_model.py
+```
+
+Then start the system:
+- **Windows**: `windows_setup\start_full_system.bat`
+- **Unix/Linux/macOS**: `./unix_setup/start_full_system.sh`
+
+## 🔌 API Usage
+
+**Single Prediction:**
+```bash
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "designation": 3,
+    "resource_allocation": 7.5,
+    "mental_fatigue": 6.2,
+    "is_male": 1,
+    "is_service": 0,
+    "wfh_available": 1
+  }'
+```
+
+**Response:**
+```json
+{
+  "predicted_burn_rate": 0.6234,
+  "risk_category": "Medium Risk",
+  "confidence_score": 0.8456
+}
+```
+
+## 🎯 Parameters
+
+| Parameter | Range | Description |
+|-----------|-------|-------------|
+| `designation` | 0-5 | Job level (0=Intern, 5=Director) |
+| `resource_allocation` | 0-10 | Workload score |
+| `mental_fatigue` | 0-10 | Stress level |
+| `is_male` | 0,1 | Gender (0=Female, 1=Male) |
+| `is_service` | 0,1 | Company type (0=Product, 1=Service) |
+| `wfh_available` | 0,1 | Remote work (0=No, 1=Yes) |
+
+## ⚠️ Troubleshooting
 
 **Python not found:**
-- Reinstall Python from [python.org](https://python.org)
-- ✅ Check "Add Python to PATH" during installation
-- Restart Command Prompt after installation
+- Windows: Install from [python.org](https://python.org), check "Add to PATH"
+- macOS: `brew install python3`
+- Ubuntu: `sudo apt install python3 python3-pip python3-venv`
 
 **Permission errors:**
-- Run Command Prompt as Administrator
-- Or move project to `C:\burnout_prediction` (shorter path)
+- Windows: Run Command Prompt as Administrator
+- Unix: `chmod +x unix_setup/*.sh`
 
----
+**Port already in use:**
+- Change ports in startup scripts or kill existing processes
 
-### 🐧 **Unix/Linux/macOS Setup**
+## 📄 License
 
-#### **Option 1: Automated Setup (Recommended)**
-```bash
-# Navigate to project directory
-cd /path/to/burnout_prediction
-
-# Make scripts executable
-chmod +x unix_setup/*.sh
-
-# Run automated installer
-./unix_setup/install_dependencies.sh
-```
-
-#### **Option 2: Manual Setup**
-```bash
-# 1. Create virtual environment
-python3 -m venv venv
-
-# 2. Activate virtual environment
-source venv/bin/activate
-
-# 3. Upgrade pip
-pip install --upgrade pip
-
-# 4. Install dependencies
-pip install -r requirements.txt
-
-# 5. Train the model
-python burnout_prediction_model.py
-
-# 6. Start the system
-./unix_setup/start_full_system.sh
-```
-
-#### **Unix Troubleshooting**
-
-**Permission denied:**
-```bash
-chmod +x unix_setup/*.sh
-# Or
-sudo ./unix_setup/install_dependencies.sh
-```
-
-**Python3 not found:**
-```bash
-# Try different Python commands
-python --version
-python3 --version
-py --version
-
-# Install Python (Ubuntu/Debian)
-sudo apt update && sudo apt install python3 python3-pip python3-venv
-
-# Install Python (CentOS/RHEL)
-sudo yum install python3 python3-pip
-
-# Install Python (macOS with Homebrew)
-brew install python3
-```
-
----
-
-## 🚀 Quick Start (Any Platform)
-
-### **1. Complete System Launch**
-
-**Windows:**
-```cmd
-windows_setup\start_full_system.bat
-```
-
-**Unix/Linux/macOS:**
-```bash
-./unix_setup/start_full_system.sh
-```
-
-This launches:
-- 🔧 **API Server** on http://localhost:8000
-- 🌐 **Frontend** on http://localhost:3000  
-- 📚 **API Documentation** on http://localhost:8000/docs
-
-### **2. Individual Components**
-
-**Train Model:**
-```bash
-# Windows
-python burnout_prediction_model.py
-
-# Unix/Linux/macOS
-python burnout_prediction_model.py
-```
-
-**Start API Only:**
-```bash
-# Windows
-cd api && uvicorn app:app --reload
-
-# Unix/Linux/macOS
-cd api && uvicorn app:app --reload
-```
-
-**Start Frontend Only:**
-```bash
-# Windows
-cd frontend && python server.py
-
-# Unix/Linux/macOS  
-cd frontend && python server.py
-```
-
----
-
-## 📁 Cross-Platform Project Structure
-
-```
-burnout_prediction/
-├── 📁 api/                          # FastAPI backend
-│   └── app.py                       # Main API application
-├── 📁 frontend/                     # Web interface
-│   ├── index.html                   # Main HTML file
-│   └── server.py                    # Frontend server
-├── 📁 models/                       # Trained ML models
-│   ├── burnout_prediction_model.pkl # Main XGBoost model
-│   ├── lower_quantile_model.pkl     # 1st percentile model
-│   └── upper_quantile_model.pkl     # 99th percentile model
-├── 📁 windows_setup/                # Windows-specific scripts
-│   ├── install_dependencies.bat     # Dependency installer
-│   ├── start_full_system.bat        # System launcher
-│   └── activate_env.bat             # Environment activator
-├── 📁 unix_setup/                   # Unix/Linux/macOS scripts
-│   ├── install_dependencies.sh      # Dependency installer
-│   ├── start_full_system.sh         # System launcher
-│   └── activate_env.sh              # Environment activator
-├── 📁 input/                        # Training data
-│   ├── train.csv                    # Training dataset
-│   └── test.csv                     # Test dataset
-├── burnout_prediction_model.py      # Model training script
-├── validate_confidence.py           # Confidence validation
-├── requirements.txt                 # Python dependencies
-└── README.md                        # This documentation
-```
+MIT License - Use freely for commercial and personal projects.
 
 ## 🌐 Web Interface
 

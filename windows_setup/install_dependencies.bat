@@ -1,49 +1,51 @@
 @echo off
-REM Install all dependencies for Burnout Prediction System on Windows
+REM Install dependencies for Burnout Prediction System on Windows
 
-echo 📦 Installing Burnout Prediction System Dependencies...
-echo ====================================================
+echo 📦 Installing Burnout Prediction System...
+echo =========================================
+
+REM Change to script directory and go up one level
+cd /d "%~dp0"
+cd ..
 
 REM Check if Python is installed
+echo 🐍 Checking Python...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Python is not installed. Please install Python first.
-    echo You can download it from https://python.org
+    echo ❌ Python not found. Please install Python 3.8+
+    echo Download from https://python.org and check "Add to PATH"
     pause
     exit /b 1
 )
 
-REM Check if virtual environment exists
-if not exist "venv" (
-    echo 🐍 Creating virtual environment...
-    python -m venv venv
+echo ✅ Found: 
+python --version
+
+REM Setup virtual environment
+echo � Setting up virtual environment...
+if exist "venv" rmdir /s /q "venv" 2>nul
+python -m venv venv
+if %errorlevel% neq 0 (
+    echo ❌ Failed to create virtual environment
+    echo Trying with py launcher...
+    py -m venv venv
     if %errorlevel% neq 0 (
-        echo ❌ Failed to create virtual environment
+        echo ❌ Virtual environment creation failed
         pause
         exit /b 1
     )
 )
 
-REM Activate virtual environment
-echo 🔌 Activating virtual environment...
 call venv\Scripts\activate.bat
 
-REM Upgrade pip
-echo ⬆️ Upgrading pip...
-python -m pip install --upgrade pip
-
-REM Install required packages
-echo 📥 Installing required packages...
-pip install fastapi==0.104.1
-pip install uvicorn==0.24.0
-pip install joblib==1.3.2
-pip install pandas==2.1.3
-pip install numpy==1.25.2
-pip install scikit-learn==1.3.2
-pip install xgboost==2.0.1
-pip install pydantic==2.5.0
-pip install scipy==1.11.4
-pip install optuna==3.4.0
+REM Install packages
+echo 📦 Installing packages...
+python -m pip install --upgrade pip -q
+if exist "requirements.txt" (
+    pip install -r requirements.txt
+) else (
+    pip install fastapi uvicorn pandas numpy scikit-learn xgboost joblib pydantic optuna matplotlib seaborn scipy python-multipart
+)
 
 if %errorlevel% neq 0 (
     echo ❌ Failed to install packages
@@ -53,11 +55,8 @@ if %errorlevel% neq 0 (
 
 echo ✅ Installation complete!
 echo.
-echo To activate the virtual environment in the future, run:
-echo venv\Scripts\activate.bat
-echo.
 echo Next steps:
-echo 1. Train the model: python burnout_prediction_model.py
-echo 2. Start the full system: start_full_system.bat
-echo.
+echo   1. Activate environment: venv\Scripts\activate.bat
+echo   2. Train model: python burnout_prediction_model.py
+echo   3. Start system: windows_setup\start_full_system.bat
 pause
