@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Burnout Risk Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #333;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #6c757d;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #495057;
+            border-bottom-color: #007bff;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.95em;
+        }
+
+        input[type="number"], select, input[type="file"] {
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus, select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            text-align: center;
+            font-weight: 600;
+            color: #007bff;
+            margin-top: 5px;
+        }
+
+        .predict-btn, .upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .predict-btn:hover, .upload-btn:hover {
+            background: #0056b3;
+        }
+
+        .predict-btn:disabled, .upload-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+            border: 1px solid #dee2e6;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-container.low-risk {
+            background: #f8fff8;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .result-container.medium-risk {
+            background: #fffbf8;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .result-container.high-risk {
+            background: #fff8f8;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .result-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-score {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+
+        .result-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .batch-results {
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .batch-result-item {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .batch-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .batch-result-score {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .batch-result-risk {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .batch-result-risk.low-risk {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .batch-result-risk.medium-risk {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .batch-result-risk.high-risk {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .file-upload-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-info h4 {
+            margin-bottom: 10px;
+            color: #004085;
+        }
+
+        .file-upload-info p {
+            margin: 5px 0;
+            color: #004085;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 8px;
+            position: relative;
+            vertical-align: middle;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .info-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0,123,255,0.5);
+            background: #0056b3;
+        }
+
+        .info-tooltip {
+            visibility: hidden;
+            width: 380px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: left;
+            border-radius: 10px;
+            padding: 20px;
+            position: absolute;
+            z-index: 10000;
+            top: 130%;
+            left: 50%;
+            margin-left: -190px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            line-height: 1.5;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border: 1px solid #34495e;
+        }
+
+        .info-tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent #2c3e50 transparent;
+        }
+
+        .info-tooltip h4 {
+            margin: 0 0 12px 0;
+            color: #3498db;
+            font-size: 15px;
+            font-weight: 600;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 8px;
+        }
+
+        .info-tooltip p {
+            margin: 10px 0;
+            color: #ecf0f1;
+            font-size: 12px;
+        }
+
+        .info-tooltip ul {
+            margin: 10px 0;
+            padding-left: 18px;
+        }
+
+        .info-tooltip li {
+            margin: 6px 0;
+            color: #bdc3c7;
+            font-size: 11px;
+        }
+
+        .info-tooltip strong {
+            color: #e74c3c;
+        }
+
+        .info-icon:hover .info-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        .math-equation {
+        font-family: 'Computer Modern', 'Times New Roman', serif;
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 12px 0;
+        border-left: 4px solid #3498db;
+        font-size: 14px;
+        line-height: 1.8;
+        letter-spacing: 0.5px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .math-equation .math-line {
+        display: block;
+        margin: 8px 0;
+        text-align: center;
+    }
+
+    .math-equation .math-var {
+        font-style: italic;
+        color: #e74c3c;
+        font-weight: 500;
+    }
+
+    .math-equation .math-func {
+        color: #3498db;
+        font-weight: 600;
+    }
+
+    .math-equation .math-operator {
+        color: #f39c12;
+        font-weight: bold;
+        margin: 0 3px;
+    }
+
+    .math-equation .math-number {
+        color: #2ecc71;
+    }
+
+    .math-equation .math-bracket {
+        color: #9b59b6;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+
+        @media (max-width: 768px) {
+            .info-tooltip {
+                width: 280px;
+                margin-left: -140px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Burnout Risk Predictor</h1>
+            <p>AI-powered employee wellbeing assessment</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('single')">Single Prediction</button>
+            <button class="nav-tab" onclick="showTab('batch')">Batch Upload</button>
+        </div>
+        
+        <div id="single-tab" class="tab-content active">
+            <form id="burnoutForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="designation">Job Designation</label>
+                        <select id="designation" required>
+                            <option value="">Select designation</option>
+                            <option value="0">Level 0 - Intern/Entry</option>
+                            <option value="1">Level 1 - Junior</option>
+                            <option value="2">Level 2 - Associate</option>
+                            <option value="3">Level 3 - Senior</option>
+                            <option value="4">Level 4 - Lead</option>
+                            <option value="5">Level 5 - Manager/Director</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companyType">Company Type</label>
+                        <select id="companyType" required>
+                            <option value="">Select company type</option>
+                            <option value="0">Product Company</option>
+                            <option value="1">Service Company</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wfhAvailable">Work From Home Available</label>
+                        <select id="wfhAvailable" required>
+                            <option value="">Select option</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceAllocation">Resource Allocation (0-10)</label>
+                        <div class="slider-container">
+                            <input type="range" id="resourceAllocation" class="slider" min="0" max="10" step="0.1" value="5">
+                            <div class="slider-value" id="resourceValue">5.0</div>
+                        </div>
+                        <div class="info-text">How much workload/resources are allocated to you?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mentalFatigue">Mental Fatigue Score (0-10)</label>
+                        <div class="slider-container">
+                            <input type="range" id="mentalFatigue" class="slider" min="0" max="10" step="0.1" value="5">
+                            <div class="slider-value" id="fatigueValue">5.0</div>
+                        </div>
+                        <div class="info-text">How mentally exhausted do you feel?</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="predict-btn" id="predictBtn">
+                    🔮 Predict Burnout Risk
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your data...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-score" id="resultScore"></div>
+                <div class="result-description" id="resultDescription"></div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #dee2e6;">
+                <small style="color: #6c757d;">
+                    Confidence Score Information 
+                    <span class="info-icon" style="margin-left: 5px;"><i class="fa-solid fa-circle-info"></i>
+                        <div class="info-tooltip" style="top: auto; bottom: 130%;">
+                            <h4>📊 Confidence Score Calculation</h4>
+                            <p><strong>Statistical Basis:</strong> Based on 91% prediction intervals from quantile regression models (1st-99th percentile).</p>
+                            <p><strong>How it works:</strong></p>
+                            <ul>
+                                <li><strong>Narrow intervals</strong> = Higher confidence (model is certain)</li>
+                                <li><strong>Wide intervals</strong> = Lower confidence (model is uncertain)</li>
+                            </ul>
+                            <p><strong>Mathematical Formula:</strong></p>
+                            <div class="math-equation">
+                                <span class="math-line">
+                                    <span class="math-var">interval_width</span> 
+                                    <span class="math-operator">=</span> 
+                                    <span class="math-bracket">|</span><span class="math-var">upper_bound</span> 
+                                    <span class="math-operator">−</span> 
+                                    <span class="math-var">lower_bound</span><span class="math-bracket">|</span>
+                                </span>
+                                <span class="math-line">
+                                    <span class="math-var">confidence</span> 
+                                    <span class="math-operator">=</span> 
+                                    <span class="math-func">max</span><span class="math-bracket">(</span><span class="math-number">0</span><span class="math-operator">,</span> 
+                                    <span class="math-func">min</span><span class="math-bracket">(</span><span class="math-number">1</span><span class="math-operator">,</span> 
+                                    <span class="math-number">1</span> <span class="math-operator">−</span> <span class="math-var">interval_width</span><span class="math-bracket">))</span>
+                                </span>
+                            </div>
+                            <p><strong>Interpretation:</strong></p>
+                            <ul>
+                                <li><strong>85-100%:</strong> Very reliable prediction</li>
+                                <li><strong>75-84%:</strong> Reliable prediction</li>
+                                <li><strong>65-74%:</strong> Moderate reliability</li>
+                                <li><strong>&lt;65%:</strong> Less reliable, consider additional factors</li>
+                            </ul>
+                            <p><strong>Note:</strong> Higher confidence doesn't change the risk prediction, only indicates how certain the model is about that prediction.</p>
+                        </div>
+                    </span>
+                </small>
+            </div>
+        </div>
+        
+        <div id="batch-tab" class="tab-content">
+                        <div class="file-upload-info">
+                <h4>📁 Batch Upload Instructions</h4>
+                <p><strong>Supported Formats:</strong></p>
+                <p><strong>• API Format:</strong> designation, resource_allocation, mental_fatigue, is_male, is_service, wfh_available</p>
+                <p><strong>• Training Format:</strong> Designation, Resource Allocation, Mental Fatigue Score, is_male, is_service, wfh_available</p>
+                <p><strong>Boolean Values:</strong> Use 0/1, true/false, True/False, or "true"/"false"</p>
+                <p><strong>Example (API format):</strong> 3,7.5,6.2,true,false,true</p>
+                <p><strong>Example (Training format):</strong> 3,7.5,6.2,1,0,1</p>
+                <p><strong>Max file size:</strong> 1MB, <strong>Max rows:</strong> 100</p>
+                <p><strong>Note:</strong> The system automatically detects column format and converts boolean strings to numbers.</p>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="csvFile">Select CSV File</label>
+                <input type="file" id="csvFile" accept=".csv" required>
+            </div>
+            
+            <button class="upload-btn" id="uploadBtn">
+                📤 Process Batch Upload
+            </button>
+            
+            <div class="loading" id="batchLoading">
+                <div class="spinner"></div>
+                <p>Processing batch data...</p>
+            </div>
+
+            <div class="error-message" id="batchErrorMessage"></div>
+
+            <div class="batch-results" id="batchResults" style="display: none;">
+                <h3 style="padding: 15px; margin: 0; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">Batch Results</h3>
+                <div id="batchResultsList"></div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #dee2e6;">
+                <small style="color: #6c757d;">
+                    Confidence Score Information 
+                    <span class="info-icon" style="margin-left: 5px;"><i class="fa-solid fa-circle-info"></i>
+                        <div class="info-tooltip" style="top: auto; bottom: 130%;">
+                        <h4>📊 Confidence Score Calculation</h4>
+                        <p><strong>Statistical Basis:</strong> Based on 91% prediction intervals from quantile regression models (1st-99th percentile).</p>
+                        <p><strong>How it works:</strong></p>
+                        <ul>
+                            <li><strong>Narrow intervals</strong> = Higher confidence (model is certain)</li>
+                            <li><strong>Wide intervals</strong> = Lower confidence (model is uncertain)</li>
+                        </ul>
+                        <p><strong>Mathematical Formula:</strong></p>
+                        <div class="math-equation">
+                            <span class="math-line">
+                                <span class="math-var">interval_width</span> 
+                                <span class="math-operator">=</span> 
+                                <span class="math-bracket">|</span><span class="math-var">upper_bound</span> 
+                                <span class="math-operator">−</span> 
+                                <span class="math-var">lower_bound</span><span class="math-bracket">|</span>
+                            </span>
+                            <span class="math-line">
+                                <span class="math-var">confidence</span> 
+                                <span class="math-operator">=</span> 
+                                <span class="math-func">max</span><span class="math-bracket">(</span><span class="math-number">0</span><span class="math-operator">,</span> 
+                                <span class="math-func">min</span><span class="math-bracket">(</span><span class="math-number">1</span><span class="math-operator">,</span> 
+                                <span class="math-number">1</span> <span class="math-operator">−</span> <span class="math-var">interval_width</span><span class="math-bracket">))</span>
+                            </span>
+                        </div>
+                        <p><strong>Interpretation:</strong></p>
+                        <ul>
+                            <li><strong>85-100%:</strong> Very reliable prediction</li>
+                            <li><strong>75-84%:</strong> Reliable prediction</li>
+                            <li><strong>65-74%:</strong> Moderate reliability</li>
+                            <li><strong>&lt;65%:</strong> Less reliable, consider additional factors</li>
+                        </ul>
+                        <p><strong>Note:</strong> Higher confidence doesn't change the risk prediction, only indicates how certain the model is about that prediction.</p>
+                    </div>
+                    </span>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Update slider values in real-time
+        document.getElementById('resourceAllocation').addEventListener('input', function() {
+            document.getElementById('resourceValue').textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        document.getElementById('mentalFatigue').addEventListener('input', function() {
+            document.getElementById('fatigueValue').textContent = parseFloat(this.value).toFixed(1);
+        });
+
+        // Single prediction form submission
+        document.getElementById('burnoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            showLoading('single');
+            hideResult('single');
+            hideError('single');
+            
+            const formData = {
+                designation: parseInt(document.getElementById('designation').value),
+                resource_allocation: parseFloat(document.getElementById('resourceAllocation').value),
+                mental_fatigue: parseFloat(document.getElementById('mentalFatigue').value),
+                is_male: parseInt(document.getElementById('gender').value),
+                is_service: parseInt(document.getElementById('companyType').value),
+                wfh_available: parseInt(document.getElementById('wfhAvailable').value)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                displayResult(result, 'single');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(getErrorMessage(error), 'single');
+            } finally {
+                hideLoading('single');
+            }
+        });
+
+        // Helper function to convert boolean strings to numbers
+        function convertBooleanToNumber(value) {
+            if (typeof value === 'string') {
+                const lowerValue = value.toLowerCase().trim();
+                if (lowerValue === 'true' || lowerValue === '1') return 1;
+                if (lowerValue === 'false' || lowerValue === '0') return 0;
+            }
+            // If it's already a number, return it
+            if (typeof value === 'number') return value;
+            // Try to parse as number
+            const numValue = parseInt(value);
+            return isNaN(numValue) ? 0 : numValue;
+        }
+
+        // Batch upload functionality
+        document.getElementById('uploadBtn').addEventListener('click', async function() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Please select a CSV file.', 'batch');
+                return;
+            }
+            
+            if (file.size > 1024 * 1024) { // 1MB limit
+                showError('File size must be less than 1MB.', 'batch');
+                return;
+            }
+            
+            showLoading('batch');
+            hideError('batch');
+            hideBatchResults();
+            
+            try {
+                const text = await file.text();
+                const rows = text.split('\n').filter(row => row.trim());
+                
+                if (rows.length < 2) {
+                    throw new Error('CSV file must contain at least a header row and one data row.');
+                }
+                
+                if (rows.length > 101) { // Header + 100 data rows
+                    throw new Error('CSV file can contain at most 100 data rows.');
+                }
+                
+                const headers = rows[0].split(',').map(h => h.trim());
+                
+                // More flexible column validation - accept both API format and training format
+                const apiFormatHeaders = ['designation', 'resource_allocation', 'mental_fatigue', 'is_male', 'is_service', 'wfh_available'];
+                const trainingFormatHeaders = ['Designation', 'Resource Allocation', 'Mental Fatigue Score', 'is_male', 'is_service', 'wfh_available'];
+                
+                const hasApiFormat = apiFormatHeaders.every(h => headers.includes(h));
+                const hasTrainingFormat = trainingFormatHeaders.every(h => headers.includes(h));
+                
+                if (!hasApiFormat && !hasTrainingFormat) {
+                    const missingApi = apiFormatHeaders.filter(h => !headers.includes(h));
+                    const missingTraining = trainingFormatHeaders.filter(h => !headers.includes(h));
+                    throw new Error(`CSV file must contain all required columns. Expected either:\n• API format: ${apiFormatHeaders.join(', ')}\n• Training format: ${trainingFormatHeaders.join(', ')}\n\nMissing from API format: ${missingApi.join(', ')}\nMissing from training format: ${missingTraining.join(', ')}\n\nYour headers: ${headers.join(', ')}`);
+                }
+                
+                // Use the appropriate format
+                const expectedHeaders = hasApiFormat ? apiFormatHeaders : trainingFormatHeaders;
+                const useApiFormat = hasApiFormat;
+                
+                const employees = [];
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',').map(v => v.trim());
+                    if (values.length !== 6) continue;
+                    
+                    // Parse values with proper type conversion
+                    const designation = parseInt(values[0]);
+                    const resource_allocation = parseFloat(values[1]);
+                    const mental_fatigue = parseFloat(values[2]);
+                    const is_male = convertBooleanToNumber(values[3]);
+                    const is_service = convertBooleanToNumber(values[4]);
+                    const wfh_available = convertBooleanToNumber(values[5]);
+                    
+                    const employee = {
+                        designation: designation,
+                        resource_allocation: resource_allocation,
+                        mental_fatigue: mental_fatigue,
+                        is_male: is_male,
+                        is_service: is_service,
+                        wfh_available: wfh_available
+                    };
+                    
+                    // Validate each employee with detailed error messages
+                    if (isNaN(employee.designation) || employee.designation < 0 || employee.designation > 5) {
+                        throw new Error(`Invalid designation in row ${i + 1}: "${values[0]}" (must be a number between 0-5)`);
+                    }
+                    if (isNaN(employee.resource_allocation) || employee.resource_allocation < 0 || employee.resource_allocation > 10) {
+                        throw new Error(`Invalid resource_allocation in row ${i + 1}: "${values[1]}" (must be a number between 0-10)`);
+                    }
+                    if (isNaN(employee.mental_fatigue) || employee.mental_fatigue < 0 || employee.mental_fatigue > 10) {
+                        throw new Error(`Invalid mental_fatigue in row ${i + 1}: "${values[2]}" (must be a number between 0-10)`);
+                    }
+                    if (![0, 1].includes(employee.is_male)) {
+                        throw new Error(`Invalid is_male in row ${i + 1}: "${values[3]}" (must be 0, 1, "true", "false", "True", or "False")`);
+                    }
+                    if (![0, 1].includes(employee.is_service)) {
+                        throw new Error(`Invalid is_service in row ${i + 1}: "${values[4]}" (must be 0, 1, "true", "false", "True", or "False")`);
+                    }
+                    if (![0, 1].includes(employee.wfh_available)) {
+                        throw new Error(`Invalid wfh_available in row ${i + 1}: "${values[5]}" (must be 0, 1, "true", "false", "True", or "False")`);
+                    }
+                    
+                    employees.push(employee);
+                }
+                
+                // Make batch API request
+                const response = await fetch(`${API_BASE_URL}/predict/batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(employees)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const results = await response.json();
+                displayBatchResults(results);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(getErrorMessage(error), 'batch');
+            } finally {
+                hideLoading('batch');
+            }
+        });
+
+        function showLoading(type) {
+            if (type === 'single') {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('predictBtn').disabled = true;
+            } else {
+                document.getElementById('batchLoading').style.display = 'block';
+                document.getElementById('uploadBtn').disabled = true;
+            }
+        }
+
+        function hideLoading(type) {
+            if (type === 'single') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('predictBtn').disabled = false;
+            } else {
+                document.getElementById('batchLoading').style.display = 'none';
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        }
+
+        function showError(message, type) {
+            const errorDiv = type === 'single' ? document.getElementById('errorMessage') : document.getElementById('batchErrorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError(type) {
+            const errorDiv = type === 'single' ? document.getElementById('errorMessage') : document.getElementById('batchErrorMessage');
+            errorDiv.style.display = 'none';
+        }
+
+        function hideResult(type) {
+            if (type === 'single') {
+                document.getElementById('resultContainer').classList.remove('show');
+            }
+        }
+
+        function hideBatchResults() {
+            document.getElementById('batchResults').style.display = 'none';
+            document.getElementById('batchResultsList').innerHTML = '';
+        }
+
+        function displayResult(result, type) {
+            if (type === 'single') {
+                const container = document.getElementById('resultContainer');
+                const title = document.getElementById('resultTitle');
+                const score = document.getElementById('resultScore');
+                const description = document.getElementById('resultDescription');
+
+                container.classList.remove('low-risk', 'medium-risk', 'high-risk');
+
+                const burnRate = result.predicted_burn_rate;
+                const riskCategory = result.risk_category;
+                const confidence = result.confidence_score || 0;
+
+                title.textContent = riskCategory;
+                score.textContent = `${(burnRate * 100).toFixed(1)}%`;
+
+                if (riskCategory === 'Low Risk') {
+                    container.classList.add('low-risk');
+                    description.innerHTML = `
+                        <p><strong>Great news!</strong> Your burnout risk is low.</p>
+                        <p>You appear to be managing your workload well. Keep maintaining a healthy work-life balance.</p>
+                        <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(1)}%</p>
+                    `;
+                } else if (riskCategory === 'Medium Risk') {
+                    container.classList.add('medium-risk');
+                    description.innerHTML = `
+                        <p><strong>Caution needed.</strong> Your burnout risk is moderate.</p>
+                        <p>Consider discussing workload with your manager and implementing stress management strategies.</p>
+                        <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(1)}%</p>
+                    `;
+                } else {
+                    container.classList.add('high-risk');
+                    description.innerHTML = `
+                        <p><strong>Immediate attention required!</strong> Your burnout risk is high.</p>
+                        <p>Please speak with HR or your manager about workload adjustment and consider seeking support.</p>
+                        <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(1)}%</p>
+                    `;
+                }
+
+                container.classList.add('show');
+            }
+        }
+
+        function displayBatchResults(results) {
+            const resultsDiv = document.getElementById('batchResults');
+            const resultsList = document.getElementById('batchResultsList');
+            
+            resultsList.innerHTML = '';
+            
+            results.forEach((result, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'batch-result-item';
+                
+                const burnRate = result.predicted_burn_rate;
+                const riskCategory = result.risk_category;
+                const confidence = result.confidence_score || 0;
+                
+                itemDiv.innerHTML = `
+                    <div>
+                        <strong>Employee ${index + 1}</strong>
+                        <div class="batch-result-score">${(burnRate * 100).toFixed(1)}%</div>
+                    </div>
+                    <div>
+                        <span class="batch-result-risk ${riskCategory.toLowerCase().replace(' ', '-')}" style="margin-right: 10px;">${riskCategory}</span>
+                        <small>Confidence: ${(confidence * 100).toFixed(1)}%</small>
+                    </div>
+                `;
+                
+                resultsList.appendChild(itemDiv);
+            });
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        function getErrorMessage(error) {
+            if (error.message.includes('Failed to fetch')) {
+                return 'Unable to connect to the prediction service. Please ensure the API server is running on localhost:8000.';
+            } else if (error.message.includes('HTTP 422')) {
+                return 'Invalid input data. Please check all fields and try again.';
+            } else if (error.message.includes('HTTP 500')) {
+                return 'Server error occurred. Please try again later.';
+            } else {
+                return error.message || 'An unexpected error occurred. Please try again.';
+            }
+        }
+
+        // Test API connection on page load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    console.log('✅ API connection successful');
+                } else {
+                    console.warn('⚠️ API health check failed');
+                }
+            } catch (error) {
+                console.warn('⚠️ Cannot connect to API:', error.message);
+            }
+        });
+    </script>
+</body>
+</html>
