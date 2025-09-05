@@ -17,19 +17,19 @@ if %errorlevel% neq 0 (
     echo 📥 Downloading Python 3.12...
     
     REM Download Python 3.12 installer
-    powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.6/python-3.12.6-amd64.exe' -OutFile 'python-3.12.6-installer.exe'"
-    
-    if exist "python-3.12.6-installer.exe" (
+    powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -OutFile 'python-3.12.10-installer.exe'"
+
+    if exist "python-3.12.10-installer.exe" (
         echo 🔧 Installing Python 3.12...
         echo Please follow the installer prompts and make sure to:
         echo   ✅ Check "Add Python to PATH"
         echo   ✅ Check "Install for all users" (optional)
         echo.
-        start /wait python-3.12.6-installer.exe /passive InstallAllUsers=1 PrependPath=1
+        start /wait python-3.12.10-installer.exe /passive InstallAllUsers=1 PrependPath=1
         
         REM Clean up installer
-        del python-3.12.6-installer.exe
-        
+        del python-3.12.10-installer.exe
+
         echo ✅ Python 3.12 installation completed
         echo 🔄 Please restart this script to continue
         pause
