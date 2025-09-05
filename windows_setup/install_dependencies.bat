@@ -12,10 +12,34 @@ REM Check if Python is installed and verify version
 echo 🐍 Checking Python...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Python not found. Please install Python 3.12
-    echo Download from https://python.org and check "Add to PATH"
-    pause
-    exit /b 1
+    echo ❌ Python not found. Installing Python 3.12...
+    echo.
+    echo 📥 Downloading Python 3.12...
+    
+    REM Download Python 3.12 installer
+    powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.6/python-3.12.6-amd64.exe' -OutFile 'python-3.12.6-installer.exe'"
+    
+    if exist "python-3.12.6-installer.exe" (
+        echo 🔧 Installing Python 3.12...
+        echo Please follow the installer prompts and make sure to:
+        echo   ✅ Check "Add Python to PATH"
+        echo   ✅ Check "Install for all users" (optional)
+        echo.
+        start /wait python-3.12.6-installer.exe /passive InstallAllUsers=1 PrependPath=1
+        
+        REM Clean up installer
+        del python-3.12.6-installer.exe
+        
+        echo ✅ Python 3.12 installation completed
+        echo 🔄 Please restart this script to continue
+        pause
+        exit /b 0
+    ) else (
+        echo ❌ Failed to download Python installer
+        echo Please manually install Python 3.12 from https://python.org
+        pause
+        exit /b 1
+    )
 )
 
 REM Get Python version and check if it's 3.12
@@ -39,10 +63,28 @@ if not "%MINOR%"=="12" (
     echo ⚠️ Warning: Python 3.12 recommended for best compatibility
     echo Found: Python %PYTHON_VERSION%
     echo.
-    echo Do you want to continue anyway? ^(Y/N^)
-    set /p CONTINUE=
-    if /i not "%CONTINUE%"=="Y" (
-        echo Installation cancelled. Please install Python 3.12
+    echo Options:
+    echo   1. Continue with current version
+    echo   2. Install Python 3.12 automatically
+    echo.
+    set /p CHOICE=Choose option (1 or 2): 
+    
+    if "%CHOICE%"=="2" (
+        echo 📥 Downloading Python 3.12...
+        powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe' -OutFile 'python-3.12.10-installer.exe'"
+
+        if exist "python-3.12.10-installer.exe" (
+            echo 🔧 Installing Python 3.12...
+            start /wait python-3.12.10-installer.exe /passive InstallAllUsers=1 PrependPath=1
+            del python-3.12.10-installer.exe
+            echo ✅ Python 3.12 installed. Please restart this script.
+            pause
+            exit /b 0
+        )
+    )
+    
+    if not "%CHOICE%"=="1" if not "%CHOICE%"=="2" (
+        echo Installation cancelled.
         pause
         exit /b 1
     )
