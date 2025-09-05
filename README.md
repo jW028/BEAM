@@ -21,7 +21,7 @@ windows_setup\start_full_system.bat
 **Unix/Linux/macOS:**
 ```bash
 git clone https://github.com/jW028/BEAM.git
-cd BEAM
+cd BEAM 
 chmod +x unix_setup/*.sh
 ./unix_setup/install_dependencies.sh
 ./unix_setup/start_full_system.sh
@@ -125,6 +125,51 @@ curl -X POST "http://localhost:8000/predict" \
 
 **Port already in use:**
 - Change ports in startup scripts or kill existing processes
+
+### 🐍 **Python Version Issues (Recommended: Python 3.12)**
+
+If you're using Python 3.13+ and encountering compatibility issues, downgrade to Python 3.12:
+
+**Windows:**
+```cmd
+# 1. Download Python 3.12 from python.org
+# 2. Install Python 3.12 (check "Add to PATH")
+# 3. Recreate virtual environment
+rmdir /s /q venv
+py -3.12 -m venv venv
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+```
+
+**macOS (with Homebrew):**
+```bash
+# Install Python 3.12
+brew install python@3.12
+
+# Recreate virtual environment
+rm -rf venv
+python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**Ubuntu/Debian:**
+```bash
+# Install Python 3.12
+sudo apt update
+sudo apt install python3.12 python3.12-venv python3.12-pip
+
+# Recreate virtual environment
+rm -rf venv
+python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**Check your Python version:**
+```bash
+python --version  # Should show Python 3.12.x
+```
 
 ## 📄 License
 
