@@ -23,11 +23,6 @@ The frontend will automatically open at: http://localhost:3000
 
 ## 📱 Features
 
-### 🎨 Modern UI/UX
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Gradient Backgrounds**: Beautiful visual design
-- **Smooth Animations**: Engaging user interactions
-- **Real-time Sliders**: Interactive input controls
 
 ### 🔧 Functionality
 - **Form Validation**: Ensures all required fields are filled

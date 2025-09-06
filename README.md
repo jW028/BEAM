@@ -5,23 +5,19 @@ AI-powered employee burnout risk prediction with 91% confidence intervals.
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.12 recommended
 - Git (optional)
 
 ### Setup & Run
 
 **Windows:**
 ```cmd
-git clone https://github.com/jW028/BEAM.git
-cd BEAM
 windows_setup\install_dependencies.bat
 windows_setup\start_full_system.bat
 ```
 
 **Unix/Linux/macOS:**
 ```bash
-git clone https://github.com/jW028/BEAM.git
-cd BEAM 
 chmod +x unix_setup/*.sh
 ./unix_setup/install_dependencies.sh
 ./unix_setup/start_full_system.sh
